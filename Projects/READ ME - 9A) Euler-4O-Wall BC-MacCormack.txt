@@ -1,0 +1,10 @@
+This is a 1-D Compressible Euler Equations Solver 
+
+The staggered grid is used in the flow domain with 2 adiabatic no-slip walls enclosing the domain
+
+A 4th-order accurate Compact Finite Difference (Pade)-based flux interpolation scheme is used to approximate the functional values and derivatives
+
+The Time integration is performed using a 2nd-order accurate MacCormack Scheme
+
+The Pressure wave is visualized as the result
+
