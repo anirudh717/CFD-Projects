@@ -45,7 +45,7 @@ for grid in grid_sizes:
  xf = np.linspace(-1.0, Lx, grid, endpoint=True)  # linearly spaced grid
  xc = 0.5 * (xf[1:] + xf[:-1])  # no repeated periodic points
 
-# BASIC STATE
+# BASE STATE
  rho0  = 1.2 # kg/m^3
  T0    = 300.0 # Kelvin
  P0    = 101000.0 # Atmospheric
@@ -382,3 +382,4 @@ for grid in grid_sizes:
 
     # Save final frame as PDF
     plt.savefig('euler_solution_visible.pdf')
+
