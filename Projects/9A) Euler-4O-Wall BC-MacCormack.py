@@ -1,5 +1,6 @@
 #SIMULATION OF ACOUSTIC PRESSURE WAVE USING COMPACT FINITE DIFFERENCE SCHEME AND MACCORMACK TIME INTEGRATION - COMPRESSIBLE FLOWS CFD
-##Advisor - Dr. Carlo Scalo, Compressible Flows and Acoustics Lab, PURDUE University##
+## Created by : Anirudh Renganathan, 2025
+## Advisor - Dr. Carlo Scalo, Compressible Flows and Acoustics Lab, PURDUE University##
 
 #Import Built in functions from python modules, load libraries
 import numpy as np 
@@ -383,5 +384,6 @@ for grid in grid_sizes:
 
     # Save final frame as PDF
     plt.savefig('euler_solution_visible.pdf')
+
 
 
