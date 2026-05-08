@@ -1,3 +1,9 @@
+#=======================================================================
+#       Kelvin-Helmholtz instability simulator
+#=======================================================================
+#                                  Created by: Anirudh Renganathan, 2026
+#=======================================================================
+
 import numpy as np
 import cupy as cp 
 import matplotlib.pyplot as plt
