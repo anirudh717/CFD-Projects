@@ -249,7 +249,7 @@ im_omega = ax.imshow(
 )
 
 ax.set_title(
-    'Kelvin–Helmholtz Instability  |  Re = 80,000',
+    f'Kelvin–Helmholtz Instability  |  Re = {Re}',
     fontsize=13, color='#cccccc', fontweight='bold'
 )
 
