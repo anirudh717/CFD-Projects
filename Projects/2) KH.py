@@ -10,7 +10,7 @@ plt.style.use('dark_background')
 
 # ── Parameters
 Lx, Ly  = 8.0, 3.0
-Nx, Ny  =  512,192
+Nx, Ny  =  1024, 384
 Re      = 100000
 Pe      = 200000
 dx      = Lx / Nx
@@ -31,18 +31,18 @@ KX, KY  = cp.meshgrid(kx, ky)
 K2      = KX**2 + KY**2
 K2[0,0] = 1.0
 
-# ── Dealiasing mask
+# Dealiasing mask (rectangular; 2/3 ruile)
 # dealias = cp.ones((Ny, Nx), dtype=cp.float64)
 # dealias[Ny//3 : 2*Ny//3, :] = 0.0
 # dealias[:, Nx//3 : 2*Nx//3] = 0.0
 
-# ── Dealiasing mask (elliptical 2/3 rule)
-KX_idx = cp.fft.fftfreq(Nx) * Nx
-KY_idx = cp.fft.fftfreq(Ny) * Ny
-KX_idx, KY_idx = cp.meshgrid(KX_idx, KY_idx)
-dealias = (cp.sqrt((KX_idx/(Nx//3))**2 + (KY_idx/(Ny//3))**2) < 1.0).astype(cp.float64)
+# ─ Dealiasing mask (elliptical 2/3 rule)
+# KX_idx = cp.fft.fftfreq(Nx) * Nx
+# KY_idx = cp.fft.fftfreq(Ny) * Ny
+# KX_idx, KY_idx = cp.meshgrid(KX_idx, KY_idx)
+# dealias = (cp.sqrt((KX_idx/(Nx//3))**2 + (KY_idx/(Ny//3))**2) < 1.0).astype(cp.float64)
 
-# ── Sponge BC
+#  Sponge BC
 sponge_width    = 0.35
 sponge_strength = 60.0
 bot = sponge_width * Ly
@@ -89,11 +89,11 @@ cmap_phi = LinearSegmentedColormap.from_list(
 
 cmap_omega = LinearSegmentedColormap.from_list(
     'silver_glitter',
-    [(0.00, "#ffffff"),   # pure white — negative vorticity
+    [(0.00, "#ffffff"),   #  negative vorticity
      (0.35, '#888888'),   # gray
      (0.50, '#000000'),   # black — zero
      (0.65, '#888888'),   # gray
-     (1.00, '#ffffff')],  # pure white — positive vorticity
+     (1.00, '#ffffff')],  # positive vorticity
     N=512
 )
 
