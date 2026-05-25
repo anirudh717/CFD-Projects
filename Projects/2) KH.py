@@ -1,9 +1,3 @@
-#=======================================================================
-#       Kelvin-Helmholtz instability simulator
-#=======================================================================
-#                                  Created by: Anirudh Renganathan, 2026
-#=======================================================================
-
 import numpy as np
 import cupy as cp 
 import matplotlib.pyplot as plt
@@ -16,7 +10,7 @@ plt.style.use('dark_background')
 
 # ── Parameters
 Lx, Ly  = 8.0, 3.0
-Nx, Ny  =  1024, 384
+Nx, Ny  =  512,192
 Re      = 100000
 Pe      = 200000
 dx      = Lx / Nx
@@ -38,9 +32,15 @@ K2      = KX**2 + KY**2
 K2[0,0] = 1.0
 
 # ── Dealiasing mask
-dealias = cp.ones((Ny, Nx), dtype=cp.float64)
-dealias[Ny//3 : 2*Ny//3, :] = 0.0
-dealias[:, Nx//3 : 2*Nx//3] = 0.0
+# dealias = cp.ones((Ny, Nx), dtype=cp.float64)
+# dealias[Ny//3 : 2*Ny//3, :] = 0.0
+# dealias[:, Nx//3 : 2*Nx//3] = 0.0
+
+# ── Dealiasing mask (elliptical 2/3 rule)
+KX_idx = cp.fft.fftfreq(Nx) * Nx
+KY_idx = cp.fft.fftfreq(Ny) * Ny
+KX_idx, KY_idx = cp.meshgrid(KX_idx, KY_idx)
+dealias = (cp.sqrt((KX_idx/(Nx//3))**2 + (KY_idx/(Ny//3))**2) < 1.0).astype(cp.float64)
 
 # ── Sponge BC
 sponge_width    = 0.35
@@ -103,42 +103,79 @@ def solve_poisson(omega):
     psi_hat[0, 0] = 0.0
     return cp.real(cp.fft.ifft2(psi_hat))
 
+#FDM code block
+# def get_velocity(psi):
+#     u =  (cp.roll(psi, -1, axis=0) - cp.roll(psi, 1, axis=0)) / (2 * dy)
+#     v = -(cp.roll(psi, -1, axis=1) - cp.roll(psi, 1, axis=1)) / (2 * dx)
+#     return u, v
+
+# def rhs_omega(omega):
+#     psi  = solve_poisson(omega)
+#     u, v = get_velocity(psi)
+
+#     domega_dx = (cp.roll(omega, -1, axis=1) - cp.roll(omega, 1, axis=1)) / (2 * dx)
+#     domega_dy = (cp.roll(omega, -1, axis=0) - cp.roll(omega, 1, axis=0)) / (2 * dy)
+
+#     lap       = (
+#         (cp.roll(omega, -1, axis=1) - 2*omega + cp.roll(omega, 1, axis=1)) / dx**2 +
+#         (cp.roll(omega, -1, axis=0) - 2*omega + cp.roll(omega, 1, axis=0)) / dy**2
+#     )
+#     val     = -u*domega_dx - v*domega_dy + (1.0/Re)*lap - sigma*(omega - omega0)
+#     val_hat = cp.fft.fft2(val) * dealias
+
+#     return cp.real(cp.fft.ifft2(val_hat))
+
+# def rhs_phi(phi, u, v):
+#     dphi_dx = (cp.roll(phi, -1, axis=1) - cp.roll(phi, 1, axis=1)) / (2 * dx)
+#     dphi_dy = (cp.roll(phi, -1, axis=0) - cp.roll(phi, 1, axis=0)) / (2 * dy)
+
+#     lap_phi = (
+#         (cp.roll(phi, -1, axis=1) - 2*phi + cp.roll(phi, 1, axis=1)) / dx**2 +
+#         (cp.roll(phi, -1, axis=0) - 2*phi + cp.roll(phi, 1, axis=0)) / dy**2
+#     )
+
+#     val =  -u*dphi_dx - v*dphi_dy + (1.0/Pe)*lap_phi - sigma*(phi - phi0)
+#     val_hat = cp.fft.fft2(val)*dealias
+
+#     return (cp.real(cp.fft.ifft2(val_hat)))
+    
+
+#Full SPECTRAL CODE BLOCK
+
 def get_velocity(psi):
-    u =  (cp.roll(psi, -1, axis=0) - cp.roll(psi, 1, axis=0)) / (2 * dy)
-    v = -(cp.roll(psi, -1, axis=1) - cp.roll(psi, 1, axis=1)) / (2 * dx)
+    psi_hat = cp.fft.fft2(psi)
+    u =  cp.real(cp.fft.ifft2( 1j * KY * psi_hat))
+    v =  cp.real(cp.fft.ifft2(-1j * KX * psi_hat))
     return u, v
 
 
 def rhs_omega(omega):
-    psi  = solve_poisson(omega)
-    u, v = get_velocity(psi)
+    omega_hat = cp.fft.fft2(omega)
+    psi_hat   = omega_hat / K2
+    psi_hat[0,0] = 0.0
 
-    domega_dx = (cp.roll(omega, -1, axis=1) - cp.roll(omega, 1, axis=1)) / (2 * dx)
-    domega_dy = (cp.roll(omega, -1, axis=0) - cp.roll(omega, 1, axis=0)) / (2 * dy)
+    u =  cp.real(cp.fft.ifft2( 1j * KY * psi_hat))
+    v =  cp.real(cp.fft.ifft2(-1j * KX * psi_hat))
 
-    lap       = (
-        (cp.roll(omega, -1, axis=1) - 2*omega + cp.roll(omega, 1, axis=1)) / dx**2 +
-        (cp.roll(omega, -1, axis=0) - 2*omega + cp.roll(omega, 1, axis=0)) / dy**2
-    )
+    domega_dx = cp.real(cp.fft.ifft2(1j * KX * omega_hat))
+    domega_dy = cp.real(cp.fft.ifft2(1j * KY * omega_hat))
+
+    lap = cp.real(cp.fft.ifft2(-K2 * omega_hat))
+
     val     = -u*domega_dx - v*domega_dy + (1.0/Re)*lap - sigma*(omega - omega0)
     val_hat = cp.fft.fft2(val) * dealias
-
     return cp.real(cp.fft.ifft2(val_hat))
 
 def rhs_phi(phi, u, v):
-    dphi_dx = (cp.roll(phi, -1, axis=1) - cp.roll(phi, 1, axis=1)) / (2 * dx)
-    dphi_dy = (cp.roll(phi, -1, axis=0) - cp.roll(phi, 1, axis=0)) / (2 * dy)
+    phi_hat = cp.fft.fft2(phi)
 
-    lap_phi = (
-        (cp.roll(phi, -1, axis=1) - 2*phi + cp.roll(phi, 1, axis=1)) / dx**2 +
-        (cp.roll(phi, -1, axis=0) - 2*phi + cp.roll(phi, 1, axis=0)) / dy**2
-    )
+    dphi_dx = cp.real(cp.fft.ifft2(1j * KX * phi_hat))
+    dphi_dy = cp.real(cp.fft.ifft2(1j * KY * phi_hat))
+    lap_phi = cp.real(cp.fft.ifft2(-K2 * phi_hat))
 
-    val =  -u*dphi_dx - v*dphi_dy + (1.0/Pe)*lap_phi - sigma*(phi - phi0)
-    val_hat = cp.fft.fft2(val)*dealias
-
-    return (cp.real(cp.fft.ifft2(val_hat)))
-    
+    val     = -u*dphi_dx - v*dphi_dy + (1.0/Pe)*lap_phi - sigma*(phi - phi0)
+    val_hat = cp.fft.fft2(val) * dealias
+    return cp.real(cp.fft.ifft2(val_hat))
 
 # Time integration
 phi_frames   = []
