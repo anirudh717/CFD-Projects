@@ -7,3 +7,8 @@ A 4th-order accurate Compact Finite Difference (Pade)-based flux interpolation s
 The Time integration is performed using a 2nd-order accurate MacCormack Scheme
 
 Reference sources: https://doi.org/10.1016/S0021-9991(03)00322-X  ;   Dr. Carlo Scalo, Purdue University
+
+
+Snapshot of the fluctuating pressure pulse obtained from Euler equations (below)
+
+<img width="2563" height="1371" alt="Pulse_pic" src="https://github.com/user-attachments/assets/3695182d-ac93-49c8-9828-05fc3297d071" />
