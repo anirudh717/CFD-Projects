@@ -11,8 +11,8 @@ plt.style.use('dark_background')
 # ── Parameters
 Lx, Ly  = 8.0, 3.0
 Nx, Ny  =  1024, 384
-Re      = 100000
-Pe      = 200000
+Re      = 80000
+Pe      = 160000
 dx      = Lx / Nx
 dy      = Ly / Ny
 dt      = 0.0003
