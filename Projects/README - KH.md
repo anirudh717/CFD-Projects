@@ -13,6 +13,6 @@ Vortical structures have been visualized as a result
 Created by: Anirudh Renganathan, 2026
 
 
-Rendering of the Kelvin-Helmholtz Vortices (below)
+Snapshot of the Kelvin-Helmholtz Vortices (below)
 
 <img width="2526" height="816" alt="KH_Sim_pic" src="https://github.com/user-attachments/assets/69bb42fc-16f1-4258-ac19-e8341ef374f5" />
