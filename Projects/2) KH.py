@@ -31,12 +31,12 @@ KX, KY  = cp.meshgrid(kx, ky)
 K2      = KX**2 + KY**2
 K2[0,0] = 1.0
 
-Dealiasing mask (rectangular; 2/3 ruile)
+#Dealiasing mask (rectangular; 2/3 ruile)
 dealias = cp.ones((Ny, Nx), dtype=cp.float64)
 dealias[Ny//3 : 2*Ny//3, :] = 0.0
 dealias[:, Nx//3 : 2*Nx//3] = 0.0
 
-# ─ Dealiasing mask (elliptical 2/3 rule)
+# ─Dealiasing mask (elliptical 2/3 rule)
 # KX_idx = cp.fft.fftfreq(Nx) * Nx
 # KY_idx = cp.fft.fftfreq(Ny) * Ny
 # KX_idx, KY_idx = cp.meshgrid(KX_idx, KY_idx)
