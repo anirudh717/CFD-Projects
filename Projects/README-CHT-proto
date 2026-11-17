@@ -1,0 +1,8 @@
+This test case models a liquid-cooled cold plate beneath a power-electronics or processor package, where a hotspot moves across the chip as the workload shifts,
+and coolant flowing through an internal channel carries the heat awayFull 2D Finite Volume simulation of the transient, conjugate extended-Graetz problem:
+thermally developing, hydrodynamically fully developed laminar channel flow with wall conduction and a moving Gaussian wall heat flux.
+
+There is an Energy Balance Check to  ensure no unwanted heat source or sink inside the domain.
+
+This test case models a liquid-cooled cold plate beneath a power-electronics or processor package, where a hotspot moves across the chip as the workload shifts,
+and coolant flowing through an internal channel carries the heat away.
